@@ -1,5 +1,5 @@
 const express = require("express");
-const { validateCreateSite, validateUpdateSite} = require("../middleware/validateMIddleware");
+const { validateCreateSite, validateUpdateSite} = require("../middleware/validateMiddleware");
 const {createSite, updateSite, getAllSites, getSiteById, deleteSite} = require("../controllers/siteController");
 const router = express.Router();
 router.post('/', validateCreateSite, createSite);
@@ -8,3 +8,4 @@ router.get('/:id', getSiteById);
 router.put('/:id', validateUpdateSite, updateSite);
 router.delete('/:id', deleteSite);
 // all site routes are done
+module.exports = router;

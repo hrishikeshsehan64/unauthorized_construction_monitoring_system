@@ -1,9 +1,10 @@
 const express = require("express");
-const siteRoutes = require("./routes/siteRoutes");
-const surveyRoutes = require("./routes/surveyRoutes");
-const errorMiddleware = require("./middleware/errorMiddleware");
 
+const siteRoutes = require("./src/routes/siteRoutes");
+const surveyRoutes = require("./src/routes/surveyRoutes");
+const errorMiddleware = require("./src/middleware/errorMiddleware")
 const app = express();
+app.use(express.json());
 
 app.get("/", (req, res) => {
   res.status(200).json({
@@ -11,7 +12,7 @@ app.get("/", (req, res) => {
   });
 });
 
-app.use(express.json());
+
 app.use("/sites", siteRoutes);
 app.use("/surveys", surveyRoutes);
 app.use(errorMiddleware);   

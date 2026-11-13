@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const {validateCreateSurvey} = require('../middleware/validateMIddleware');
+const {validateCreateSurvey} = require('../middleware/validateMiddleware');
 const { createSurvey, getAllSurveys, getSurveyById, updateSurvey } = require("../controllers/surveyController");
 
 router.post('/', validateCreateSurvey, createSurvey);
