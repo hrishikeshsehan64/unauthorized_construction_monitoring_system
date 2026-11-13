@@ -10,3 +10,25 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+model ConstructionSite {
+  site_id Int @id @default(autoincrement())
+  address String
+  site_name String
+  latitude Float
+  longitude Float
+  created_at DateTime @default(now())
+  DroneSurvey DroneSurvey[]
+}
+enum SurveyStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
+}
+model DroneSurvey {
+  survey_id Int @id @default(autoincrement())
+  site_id Int
+  site ConstructionSite @relation(fields: [site_id], references: [site_id])
+  survey_date DateTime  @default(now())
+  survey_status SurveyStatus @default(PENDING)
+  remarks String?
+}
