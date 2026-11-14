@@ -7,15 +7,25 @@ export default defineConfig({
   server: {
     port: 3000,
     proxy: {
-      // Proxy API calls to backend
+      '/sites': {
+        target: 'http://localhost:5001',
+        changeOrigin: true,
+      },
+      '/surveys': {
+        target: 'http://localhost:5001',
+        changeOrigin: true,
+      },
+      '/reports': {
+        target: 'http://localhost:5001',
+        changeOrigin: true,
+      },
+      '/investigations': {
+        target: 'http://localhost:5001',
+        changeOrigin: true,
+      },
       '/api': {
         target: 'http://localhost:5001',
         changeOrigin: true,
-        secure: false,
-      },
-      '/socket.io': {
-        target: 'http://localhost:5001',
-        ws: true,
       },
     },
   },

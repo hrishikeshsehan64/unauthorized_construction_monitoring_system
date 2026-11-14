@@ -1,33 +1,35 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import Sidebar from './components/Sidebar';
+import { USMSProvider } from './context/USMSContext';
 import Header from './components/Header';
-import Dashboard from './pages/Dashboard';
-import Violations from './pages/Violations';
-import MapPage from './pages/Map';
+import Sites from './pages/Sites';
+import Surveys from './pages/Surveys';
+import Reports from './pages/Reports';
 import Investigations from './pages/Investigations';
+import MapPage from './pages/Map';
 import ErrorBoundary from './components/ErrorBoundary';
 
 export default function App() {
   return (
     <Router>
-      <div className="h-screen flex flex-col bg-bg">
-        <Header />
-        <div className="flex flex-1 min-h-0">
-          <Sidebar />
-          <main className="flex-1 min-w-0 p-3 overflow-hidden">
+      <USMSProvider>
+        <div className="h-screen flex flex-col bg-bg text-ink overflow-hidden">
+          <Header />
+          <main className="flex-1 min-h-0 p-3 sm:p-4 overflow-hidden">
             <ErrorBoundary>
-            <Routes>
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/violations" element={<Violations />} />
-              <Route path="/map" element={<MapPage />} />
-              <Route path="/investigations" element={<Investigations />} />
-              <Route path="*" element={<Navigate to="/dashboard" replace />} />
-            </Routes>
+              <Routes>
+                <Route path="/sites" element={<Sites />} />
+                <Route path="/surveys" element={<Surveys />} />
+                <Route path="/reports" element={<Reports />} />
+                <Route path="/violations" element={<Navigate to="/reports" replace />} />
+                <Route path="/investigations" element={<Investigations />} />
+                <Route path="/map" element={<MapPage />} />
+                <Route path="*" element={<Navigate to="/sites" replace />} />
+              </Routes>
             </ErrorBoundary>
           </main>
         </div>
-      </div>
+      </USMSProvider>
     </Router>
   );
 }
