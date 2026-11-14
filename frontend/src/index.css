@@ -1,0 +1,31 @@
+@import 'leaflet/dist/leaflet.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body, #root { height: 100%; }
+body { @apply bg-bg text-ink font-sans antialiased; margin: 0; overflow: hidden; }
+
+@layer components {
+  .panel { @apply bg-card border border-line rounded-lg; }
+  .panel-title { @apply text-[11px] font-semibold uppercase tracking-[.14em] text-mute; }
+  .chip { @apply inline-flex items-center gap-1.5 rounded px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider; }
+}
+
+* { scrollbar-width: thin; scrollbar-color: #1d2b4a transparent; }
+
+/* leaflet dark theming */
+.leaflet-container { background-color: #070c16; background-image: linear-gradient(rgba(47,123,255,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(47,123,255,.05) 1px, transparent 1px); background-size: 48px 48px; font-family: Inter, sans-serif; outline: 0; }
+.leaflet-tile-pane { filter: invert(1) hue-rotate(205deg) saturate(.55) brightness(.8) contrast(.95); }
+.leaflet-control-zoom a { background: #0d1420 !important; color: #9fb3d9 !important; border-color: #16213a !important; }
+.leaflet-control-attribution { background: rgba(5,8,15,.7) !important; color: #4b5a78 !important; }
+.leaflet-control-attribution a { color: #5a7ab8 !important; }
+.leaflet-popup-content-wrapper, .leaflet-popup-tip { background: #0d1420; color: #e6edf9; border: 1px solid #1d2b4a; box-shadow: 0 8px 30px rgba(0,0,0,.6); }
+.leaflet-popup-content { margin: 12px 14px; font-size: 12px; }
+
+.pin { position: relative; width: 34px; height: 34px; }
+.pin > div { width: 100%; height: 100%; display:flex; align-items:center; justify-content:center; background:#0a1428; border:2px solid var(--c); color: var(--c);
+  clip-path: polygon(50% 0, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%); filter: drop-shadow(0 0 8px var(--c)); }
+.pin::after { content:''; position:absolute; inset:-6px; border-radius:50%; border:1px solid var(--c); opacity:0; animation: ping 2.4s ease-out infinite; }
+.pin.crit::after { opacity:.7; }
+@keyframes ping { 0%{ transform:scale(.6); opacity:.8 } 100%{ transform:scale(1.6); opacity:0 } }

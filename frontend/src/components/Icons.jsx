@@ -1,0 +1,12 @@
+import React from 'react';
+const base = { width: 16, height: 16, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.8, strokeLinecap: 'round', strokeLinejoin: 'round' };
+const I = (d) => (p) => <svg {...base} {...p}>{d}</svg>;
+export const Grid = I(<><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></>);
+export const Alert = I(<><path d="M12 3 2 20h20L12 3Z"/><path d="M12 10v4M12 17.5v.01"/></>);
+export const MapIcon = I(<><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2Z"/><path d="M9 4v14M15 6v14"/></>);
+export const Shield = I(<path d="M12 3 4 6v6c0 5 3.4 8 8 9 4.6-1 8-4 8-9V6l-8-3Z"/>);
+export const Search = I(<><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></>);
+export const Bell = I(<><path d="M6 8a6 6 0 1 1 12 0c0 7 3 8 3 8H3s3-1 3-8Z"/><path d="M10 20a2 2 0 0 0 4 0"/></>);
+export const Building = I(<><path d="M4 21V4l9-1v18M13 8h7v13M8 8h1M8 12h1M8 16h1M16 12h1M16 16h1M2 21h20"/></>);
+export const Radar = I(<><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="M12 12 19 5"/></>);
+export const Plus = I(<path d="M12 5v14M5 12h14"/>);
