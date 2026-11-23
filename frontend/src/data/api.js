@@ -6,6 +6,33 @@ export const apiClient = axios.create({
   timeout: 5000,
 });
 
+apiClient.interceptors.request.use((config) => {
+  const token = localStorage.getItem('usms_token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+export const AuthAPI = {
+  login: (credentials) =>
+    apiClient
+      .post('/auth/login', credentials)
+      .catch(() => apiClient.post('/api/auth/login', credentials)),
+  register: (userData) =>
+    apiClient
+      .post('/auth/register', userData)
+      .catch(() => apiClient.post('/api/auth/register', userData)),
+  getMe: () =>
+    apiClient
+      .get('/auth/me')
+      .catch(() => apiClient.get('/api/auth/me')),
+  getUsers: () =>
+    apiClient
+      .get('/auth/users')
+      .catch(() => apiClient.get('/api/auth/users')),
+};
+
 export const SitesAPI = {
   getAll: () => apiClient.get('/sites').catch(() => apiClient.get('/api/sites')),
   getById: (id) => apiClient.get(`/sites/${id}`).catch(() => apiClient.get(`/api/sites/${id}`)),

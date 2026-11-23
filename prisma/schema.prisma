@@ -18,6 +18,7 @@ model ConstructionSite {
   longitude Float
   created_at DateTime @default(now())
   DroneSurvey DroneSurvey[]
+  reports Report[]
 }
 enum SurveyStatus {
   PENDING
@@ -31,4 +32,55 @@ model DroneSurvey {
   survey_date DateTime  @default(now())
   survey_status SurveyStatus @default(PENDING)
   remarks String?
+  reports Report[]
+}
+enum ReportStatus {
+  PENDING
+  UNDER_INVESTIGATION
+  VERIFIED
+  REJECTED
+}
+
+model Report {
+  report_id   Int          @id @default(autoincrement())
+  site_id     Int
+  survey_id   Int?
+  description String
+  report_date DateTime     @default(now())
+  status      ReportStatus @default(PENDING)
+
+  site         ConstructionSite @relation(fields: [site_id], references: [site_id])
+  survey       DroneSurvey?     @relation(fields: [survey_id], references: [survey_id])
+  investigation Investigation?
+}
+enum InvestigationStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+}
+
+model Investigation {
+  investigation_id     Int      @id @default(autoincrement())
+  report_id            Int      @unique
+  investigation_date   DateTime?
+  investigation_notes  String?
+  investigation_status InvestigationStatus @default(NOT_STARTED)
+
+  report Report @relation(fields: [report_id], references: [report_id])
+}
+
+enum Role {
+  ADMIN
+  OFFICER
+  SURVEYOR
+  VIEWER
+}
+
+model User {
+  user_id       Int      @id @default(autoincrement())
+  name          String
+  email         String   @unique
+  password_hash String
+  role          Role     @default(OFFICER)
+  created_at    DateTime @default(now())
 }

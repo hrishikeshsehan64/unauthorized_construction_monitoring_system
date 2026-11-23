@@ -147,3 +147,28 @@ export const initialInvestigations = [
     investigation_status: 'COMPLETED',
   },
 ];
+
+export const initialUsers = [
+  {
+    user_id: 1,
+    name: 'System Admin',
+    email: 'admin@usms.gov',
+    role: 'ADMIN',
+    created_at: '2026-11-01T00:00:00.000Z',
+  },
+  {
+    user_id: 2,
+    name: 'Enforcement Officer Patil',
+    email: 'officer@usms.gov',
+    role: 'OFFICER',
+    created_at: '2026-11-05T00:00:00.000Z',
+  },
+  {
+    user_id: 3,
+    name: 'Drone Pilot Sharma',
+    email: 'pilot@usms.gov',
+    role: 'SURVEYOR',
+    created_at: '2026-11-10T00:00:00.000Z',
+  },
+];
+

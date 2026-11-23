@@ -33,4 +33,13 @@ const updateSurvey = async (req, res, next) => {
     }
 };
 
-module.exports = { createSurvey, getAllSurveys, getSurveyById, updateSurvey };
+const deleteSurvey = async (req, res, next) => {
+    try {
+        const deletedSurvey = await surveyService.deleteSurvey(req.params.id);
+        res.status(200).json(deletedSurvey);
+    } catch (error) {
+        next(error);
+    }
+};
+
+module.exports = { createSurvey, getAllSurveys, getSurveyById, updateSurvey, deleteSurvey };

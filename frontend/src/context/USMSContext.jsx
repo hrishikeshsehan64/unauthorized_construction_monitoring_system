@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import axios from 'axios';
-import { initialSites, initialSurveys, initialReports, initialInvestigations } from '../data/initialData';
+import { initialSites, initialSurveys, initialReports, initialInvestigations, initialUsers } from '../data/initialData';
 
 const USMSContext = createContext(null);
 
@@ -9,11 +9,31 @@ const api = axios.create({
   timeout: 3000,
 });
 
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('usms_token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 export function USMSProvider({ children }) {
   const [sites, setSites] = useState(initialSites);
   const [surveys, setSurveys] = useState(initialSurveys);
   const [reports, setReports] = useState(initialReports);
   const [investigations, setInvestigations] = useState(initialInvestigations);
+
+  // Authentication State
+  const [user, setUser] = useState(() => {
+    try {
+      const saved = localStorage.getItem('usms_user');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
+  const [token, setToken] = useState(() => localStorage.getItem('usms_token') || null);
+  const [loginModalOpen, setLoginModalOpen] = useState(false);
 
   const [isLiveBackend, setIsLiveBackend] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -69,6 +89,137 @@ export function USMSProvider({ children }) {
     const interval = setInterval(refreshFromBackend, 15000);
     return () => clearInterval(interval);
   }, [refreshFromBackend]);
+
+  // Verify user on token change or initial backend connection
+  useEffect(() => {
+    const verifyUser = async () => {
+      const savedToken = localStorage.getItem('usms_token');
+      if (savedToken && isLiveBackend) {
+        try {
+          const res = await api.get('/auth/me').catch(() => api.get('/api/auth/me'));
+          if (res.data?.data) {
+            setUser(res.data.data);
+            localStorage.setItem('usms_user', JSON.stringify(res.data.data));
+          }
+        } catch (err) {
+          if (err.response?.status === 401) {
+            setUser(null);
+            setToken(null);
+            localStorage.removeItem('usms_token');
+            localStorage.removeItem('usms_user');
+          }
+        }
+      }
+    };
+    verifyUser();
+  }, [isLiveBackend]);
+
+  const login = async ({ email, password }) => {
+    try {
+      let resData = null;
+      if (isLiveBackend) {
+        try {
+          const res = await api.post('/auth/login', { email, password }).catch(() => api.post('/api/auth/login', { email, password }));
+          resData = res.data?.data || res.data;
+        } catch (backendErr) {
+          const errMessage = backendErr.response?.data?.error || backendErr.response?.data?.message || 'Invalid email or password';
+          throw new Error(errMessage);
+        }
+      }
+
+      if (!resData) {
+        // Local mode fallback authentication
+        const normalized = (email || '').trim().toLowerCase();
+        const matched = initialUsers.find((u) => u.email.toLowerCase() === normalized);
+        if (matched) {
+          const expectedPass = matched.role === 'ADMIN' ? 'admin123' : matched.role === 'OFFICER' ? 'officer123' : 'admin123';
+          if (password !== expectedPass && password !== 'admin123' && password !== 'officer123') {
+            throw new Error('Invalid email or password');
+          }
+          resData = {
+            user: matched,
+            token: 'demo-jwt-token-' + matched.user_id + '-' + Date.now(),
+          };
+        } else if (password && password.length >= 6) {
+          const localUser = {
+            user_id: 99,
+            name: email.split('@')[0],
+            email: normalized,
+            role: 'OFFICER',
+            created_at: new Date().toISOString(),
+          };
+          resData = {
+            user: localUser,
+            token: 'demo-jwt-token-99-' + Date.now(),
+          };
+        } else {
+          throw new Error('Invalid email or password');
+        }
+      }
+
+      const { user: loggedInUser, token: authToken } = resData;
+      setUser(loggedInUser);
+      setToken(authToken);
+      localStorage.setItem('usms_token', authToken);
+      localStorage.setItem('usms_user', JSON.stringify(loggedInUser));
+      setLoginModalOpen(false);
+      showToast(`Welcome back, ${loggedInUser.name}!`);
+      return { success: true, user: loggedInUser };
+    } catch (err) {
+      showToast(err.message, 'error');
+      return { success: false, error: err.message };
+    }
+  };
+
+  const register = async ({ name, email, password, role }) => {
+    try {
+      let resData = null;
+      if (isLiveBackend) {
+        try {
+          const res = await api.post('/auth/register', { name, email, password, role }).catch(() => api.post('/api/auth/register', { name, email, password, role }));
+          resData = res.data?.data || res.data;
+        } catch (backendErr) {
+          const errMessage = backendErr.response?.data?.error || backendErr.response?.data?.message || 'Failed to register';
+          throw new Error(errMessage);
+        }
+      }
+
+      if (!resData) {
+        const normalized = email.trim().toLowerCase();
+        const newUser = {
+          user_id: Date.now(),
+          name: name.trim(),
+          email: normalized,
+          role: role || 'OFFICER',
+          created_at: new Date().toISOString(),
+        };
+        resData = {
+          user: newUser,
+          token: 'demo-jwt-token-' + newUser.user_id,
+        };
+      }
+
+      const { user: registeredUser, token: authToken } = resData;
+      setUser(registeredUser);
+      setToken(authToken);
+      localStorage.setItem('usms_token', authToken);
+      localStorage.setItem('usms_user', JSON.stringify(registeredUser));
+      setLoginModalOpen(false);
+      showToast(`Account created for ${registeredUser.name}!`);
+      return { success: true, user: registeredUser };
+    } catch (err) {
+      showToast(err.message, 'error');
+      return { success: false, error: err.message };
+    }
+  };
+
+  const logout = () => {
+    setUser(null);
+    setToken(null);
+    localStorage.removeItem('usms_token');
+    localStorage.removeItem('usms_user');
+    showToast('Signed out successfully', 'info');
+  };
 
   // SITES CRUD
   const addSite = async (siteData) => {
@@ -520,6 +671,15 @@ export function USMSProvider({ children }) {
     toast,
     showToast,
     refreshFromBackend,
+    // Auth State and Actions
+    user,
+    token,
+    isAuthenticated: Boolean(user && token),
+    loginModalOpen,
+    setLoginModalOpen,
+    login,
+    register,
+    logout,
     // Actions
     addSite,
     updateSite,

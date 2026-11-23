@@ -7,6 +7,10 @@ export default defineConfig({
   server: {
     port: 3000,
     proxy: {
+      '/auth': {
+        target: 'http://localhost:5001',
+        changeOrigin: true,
+      },
       '/sites': {
         target: 'http://localhost:5001',
         changeOrigin: true,
